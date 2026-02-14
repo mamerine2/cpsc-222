@@ -1,0 +1,12 @@
+[Unit]
+Description=Python API (localhost:3000)
+After=network.target
+
+[Service]
+User=user
+WorkingDirectory=/home/user/cpsc222/cpsc-222/python-api
+ExecStart=/usr/bin/python3 /home/user/cpsc222/cpsc-222/python-api/api_server.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

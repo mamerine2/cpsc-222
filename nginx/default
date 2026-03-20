@@ -1,0 +1,32 @@
+# HTTPS reverse proxy setup for Python API on port 3000
+# HTTP traffic is permanently redirected to HTTPS
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name 10.0.2.15;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+
+    server_name 10.0.2.15;
+
+
+    ssl_certificate     /etc/nginx/ssl/selfsigned.crt;
+    ssl_certificate_key /etc/nginx/ssl/selfsigned.key;
+
+    root /var/www/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}

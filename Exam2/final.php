@@ -30,10 +30,57 @@ function showLoginForm($error = "") {
     echo "</form>";
 }
 
+function checkLogin($username, $password) {
+    $lines = file("auth.db");
+
+    foreach ($lines as $line) {
+        $parts = preg_split("/\s+/", trim($line));
+
+        if (count($parts) == 2) {
+            $storedUsername = $parts[0];
+            $storedPassword = $parts[1];
+
+            if ($username == $storedUsername && password_verify($password, $storedPassword)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 showHeader();
 
-if (!isset($_SESSION['username'])) {
-    showLoginForm();
+if (isset($_POST['login'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    if (checkLogin($username, $password)) {
+        $_SESSION['username'] = $username;
+        echo "<h2>Welcome, " . $_SESSION['username'] . "! ";
+        echo "(<a href='final_logout.php'>Log Out</a>)</h2>";
+        echo "<p>Dashboard:</p>";
+        echo "<ul>";
+        echo "<li><a href='final.php?page=1'>User list</a></li>";
+        echo "<li><a href='final.php?page=2'>Group list</a></li>";
+        echo "<li><a href='final.php?page=3'>Syslog</a></li>";
+        echo "</ul>";
+    } else {
+        showLoginForm("Invalid login");
+    }
+} else {
+    if (isset($_SESSION['username'])) {
+        echo "<h2>Welcome, " . $_SESSION['username'] . "! ";
+        echo "(<a href='final_logout.php'>Log Out</a>)</h2>";
+        echo "<p>Dashboard:</p>";
+        echo "<ul>";
+        echo "<li><a href='final.php?page=1'>User list</a></li>";
+        echo "<li><a href='final.php?page=2'>Group list</a></li>";
+        echo "<li><a href='final.php?page=3'>Syslog</a></li>";
+        echo "</ul>";
+    } else {
+        showLoginForm();
+    }
 }
 
 showFooter();
